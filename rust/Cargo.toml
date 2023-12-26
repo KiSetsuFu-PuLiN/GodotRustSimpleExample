@@ -5,4 +5,9 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[lib]
+# Compile this crate to a dynamic C library.
+# 编译为 C动态库
+crate-type = ["cdylib"]  
+
 [dependencies]
