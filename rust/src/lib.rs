@@ -109,7 +109,7 @@ impl ISprite2D for RustObject {
 #[derive(GodotClass)]
 /// 使用`#[class(init)]`标志使类不需要手动实现对应的接口及其`init`函数也可以在 Godot 中`new`出来，相当于默认`init`实现。
 #[class(init, base = Resource)]
-struct RustRefCounted{
+struct RustResource{
 
     #[var]
     /// 可以使用`#[init(default = xxxx)]`来跳过`init`函数为字段设置构造初始值，没有该标记的字段会使用 Godot 对应类型的默认值。
@@ -130,7 +130,7 @@ struct RustRefCounted{
 
 /// `#[godot_api]`还提供`#[func]`辅助标志用于将方法暴露出来。
 #[godot_api]
-impl RustRefCounted {
+impl RustResource {
 
     /// `#[func]`标志用于将此函数暴露给 GDScript 进行操作。
     #[func]
@@ -164,7 +164,7 @@ impl RustRefCounted {
     /// 被`Gd<..>`指针包裹的对象实际上还仍然由 Godot 引擎进行托管， rust 并不持有其所有权。
     /// 在尝试向 Godot 传递对象类型或接受来自 Godot 的对象时需要考虑这点。
     #[func]
-    fn new()->Gd<RustRefCounted>{Gd::<RustRefCounted>::from_object(RustRefCounted { a:0, b: 0, pro: 0 })}
+    fn new()->Gd<RustResource>{Gd::<RustResource>::from_object(RustResource { a:0, b: 0, pro: 0 })}
 
     //tool
     //return self, GetOther.
