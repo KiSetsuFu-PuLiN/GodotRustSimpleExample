@@ -1,5 +1,5 @@
 [package]
-name = "RustGodot"
+name = "rust_godot"
 version = "0.1.0"
 edition = "2021"
 

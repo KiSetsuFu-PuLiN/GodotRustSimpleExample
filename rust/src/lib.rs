@@ -17,7 +17,7 @@ unsafe impl ExtensionLibrary for MyExtensition {
         // 仅运行有 `#[class(tool)]` 标记的类。
         // 所有的类都会被注册，并且允许从 GDScript 进行调用。
         // 然而，虚函数生命周期函数(`_ready`, `_process`, `_physics_process`, ...) 并不会被调用，除非有 `#[class(tool)]` 标记。
-        // 注意：_init 函数不在此列，因为 Godot 中的 _init 本质上就是构造函数。在编辑器中也是需要
+        // 注意：_init 函数不在此列，因为 Godot 中的 _init 本质上就是构造函数。在编辑器中也是需要先 构造出来 然后才能显示在节点树上。
         EditorRunBehavior::ToolClassesOnly
     }
     /// 决定此扩展的初始化等级（初始化时机）。
@@ -29,20 +29,18 @@ unsafe impl ExtensionLibrary for MyExtensition {
         InitLevel::Servers;
         // 第三等级的初始化时机，绝大多数类都可用。
         InitLevel::Scene;
-        // 第四等级的初始化时机，仅在编辑器中才会加载。所有的类都可用。
+        // 第四等级的初始化时机。所有的类都可用，但需要注意 Godot 的有些类仅在编辑器下可用。
         InitLevel::Editor
     }
-    /// Custom logic when a certain init-level of Godot is loaded.
-    ///
-    /// This will only be invoked for levels >= [`Self::min_level()`], in ascending order. Use `if` or `match` to hook to specific levels.
+    /// 自定义扩展初始化时的行为。
+    /// 在引擎启动、扩展被初始化时，此函数可能根据引擎的初始化等级而调用多次（ 4 次）， _level 正是当前引擎的初始化等级，扩展的初始化时机比引擎稍晚一些。
     fn on_level_init(_level: InitLevel) {
-        // Nothing by default.
+        // 默认啥都不干
     }
-    /// Custom logic when a certain init-level of Godot is unloaded.
-    ///
-    /// This will only be invoked for levels >= [`Self::min_level()`], in descending order. Use `if` or `match` to hook to specific levels.
+    /// 自定义扩展解初始化（析构）时的行为。
+    /// 在引擎启动、扩展被初始化时，此函数可能根据引擎的初始化等级而调用多次（ 4 次）， _level 正是当前引擎的初始化等级，扩展的析构时机比引擎稍早一些。
     fn on_level_deinit(_level: InitLevel) {
-        // Nothing by default.
+        // 默认啥都不干
     }
 }
 
@@ -59,7 +57,7 @@ struct Player {
 impl ISprite2D for Player {
     /// 需要注意 init 函数是不可避免在编辑器中被调用的，因为在 Godot 里，init 是 new 的别称
     fn init(base: Base<Sprite2D>) -> Self {
-        godot_print!("Hello, Rust!");
+        // godot_print!("Hello, Rust!");
         return Self {
             base,
             speed: 400.0,
