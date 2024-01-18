@@ -108,14 +108,31 @@ struct RustRefCounted{
     a:i64,
     #[export]
     b:i64,
-    c:i64,
+    /// 使用`#[var(get = get_pro,set = set_pro)]`来将字段改造为访问器，绑定了用于访问和设置的方法。
+    /// 需要注意绑定的方法需要同样有`#[func]`标志，不然绑定会失败、属性无法在 Godot 中被看到。
+    #[var(get = get_pro,set = set_pro)]
+    pro:i64,
 }
 
+#[godot_api]
 impl RustRefCounted {
-    fn c() -> i32{
-        2345
-    }
-    fn r() -> i64{
+
+    /// `#[func]`标志用于将此函数暴露给 GDScript 进行操作。
+    #[func]
+    fn a(&mut self) -> i64{
         1234
     }
+    
+    #[func]
+    /// 如果第一个参数不是self的话，函数也会被 Godot 视为静态函数。
+    fn b() -> i32{
+        2345
+    }
+
+    /// 由于这两个函数已经被绑定为`pro`字段的访问器，因此即便有`#[func]`声明，也不会在类的文档中作为正式的方法被提名。
+    #[func]
+    fn get_pro(&self)->i64{1234}
+    #[func]
+    fn set_pro(&mut self, value:i64)->(){self.pro = value}
+
 }
