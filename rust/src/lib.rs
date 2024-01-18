@@ -13,7 +13,7 @@ unsafe impl ExtensionLibrary for MyExtensition {
     fn editor_run_behavior() -> EditorRunBehavior {
         // 忽略所有的 `#[class(tool)]` 标记。
         EditorRunBehavior::AllClasses;
-        // 仅运行有 `#[class(tool)]` 标记的类。
+        // 仅在编辑器运行有 `#[class(tool)]` 标记的对象。
         // 所有的类都会被注册，并且允许从 GDScript 进行调用。
         // 然而，虚函数生命周期函数(`_ready`, `_process`, `_physics_process`, ...) 并不会被调用，除非有 `#[class(tool)]` 标记。
         // 注意：_init 函数不在此列，因为 Godot 中的 _init 本质上就是构造函数。在编辑器中也是需要先 构造出来 然后才能显示在节点树上。
@@ -56,7 +56,8 @@ unsafe impl ExtensionLibrary for MyExtensition {
 #[derive(GodotClass)]
 /// 使用`#[class(base=SomeGodotClass)]`标志使类继承于`godot::engine::*`中的任意类`SomeGodotClass`，否则会自动继承`RefCounted`。
 /// 然后可以手动实现`ISomeGodotClass`的特性来编写其作为 Godot 对象的各项回调。
-#[class(base=Sprite2D)]
+/// 使用`#[class(tool)]`标志在编辑器中也运行覆写的虚函数。
+#[class(tool, base=Sprite2D)]
 struct RustObject {
 
     /// `#[base]`标志表示该字段是结构体继承自`Sprite2D`的基类型对象。
@@ -80,7 +81,7 @@ struct RustObject {
 }
 
 /// `#[godot_api]`是连接 Rust 函数和 Godot 的主要桥梁。
-/// `ISprite2D`仅仅只是提示了可以写哪些函数，虽然`ISprite2D`内部有一些默认的看起来会报错的`unimplemented!()`实现，
+/// `ISprite2D`仅仅只是提示了可以写哪些虚函数，虽然`ISprite2D`内部有一些默认的看起来会报错的`unimplemented!()`实现，
 /// 但实际上这些默认实现全都会被`#[godot_api]`优化掉，从而根本不会被 Godot 调用。
 /// 在此处覆盖实现的函数则会被`#[godot_api]`暴露给引擎，像 GDScript 中虚函数那样正常工作。
 #[godot_api]
