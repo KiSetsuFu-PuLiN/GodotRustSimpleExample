@@ -1,4 +1,3 @@
-use godot::builtin::meta::registration::constant;
 use godot::engine::{ISprite2D, Sprite2D};
 use godot::init::EditorRunBehavior;
 use godot::prelude::*;
@@ -160,5 +159,14 @@ impl RustRefCounted {
     /// 设置一个常数并暴露给 Godot 。(rust的常数只能写在特性或函数里)
     #[constant]
     const CUSTOM_CONST:i32 = 999;
+
+    /// rust 与 Godot 进行非值类型的自定义类对象的交互的时候，只能通过`Gd<..>`指针进行。
+    /// 被`Gd<..>`指针包裹的对象实际上还仍然由 Godot 引擎进行托管， rust 并不持有其所有权。
+    /// 在尝试向 Godot 传递对象类型或接受来自 Godot 的对象时需要考虑这点。
+    #[func]
+    fn new()->Gd<RustRefCounted>{Gd::<RustRefCounted>::from_object(RustRefCounted { a:0, b: 0, pro: 0 })}
+
+    //tool
+    //return self, GetOther.
 
 }
