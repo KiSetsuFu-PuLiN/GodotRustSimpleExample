@@ -1,3 +1,4 @@
+use godot::builtin::meta::registration::constant;
 use godot::engine::{ISprite2D, Sprite2D};
 use godot::init::EditorRunBehavior;
 use godot::prelude::*;
@@ -59,8 +60,9 @@ unsafe impl ExtensionLibrary for MyExtensition {
 #[class(base=Sprite2D)]
 struct RustObject {
 
-    /// `#[base]`标志表示该字段是结构体继承自`Sprite2D`的基类型。
+    /// `#[base]`标志表示该字段是结构体继承自`Sprite2D`的基类型对象。
     /// 打上此标记来让帮助宏将基类型的数据写入到该字段中，这在使用`#[class(init)]`标志时是必要的。(对于现在这种手写`init`函数的情况是不必要的)。
+    /// rust 没有继承的概念，所以对基类型方法和字段的使用只能通过这种方式，这里的`base`字段中包含了所有的基类型字段和方法。
     //#[base]
     base: Base<Sprite2D>,
     
@@ -71,7 +73,7 @@ struct RustObject {
     #[var]
     speed: f64,
     
-    /// `#[export]`标志表示该字段可以在编辑器的检视器中显示，并进行值的设置，设置会在 init 之后且与默认值有差异时进行。
+    /// `#[export]`标志表示该字段可以在编辑器的检视器中显示并进行值的设置，设置会在 init 之后且与默认值有差异时进行。
     /// 此标志也会默认实现`#[var]`标志。
     #[export]
     angular_speed: f64,
@@ -124,6 +126,7 @@ struct RustRefCounted{
     /// 需要注意绑定的方法需要同样有`#[func]`标志，不然绑定会失败、本字段无法在 Godot 中被看到。
     #[var(get = get_pro,set = set_pro)]
     pro:i64,
+
 }
 
 /// `#[godot_api]`还提供`#[func]`辅助标志用于将方法暴露出来。
@@ -149,5 +152,13 @@ impl RustRefCounted {
     fn get_pro(&self)->i64{1234}
     #[func]
     fn set_pro(&mut self, value:i64)->(){self.pro = value}
+
+    /// 将此函数实现为一个信号并暴露给 Godot 。
+    #[signal]
+    fn custon_signal();
+
+    /// 设置一个常数并暴露给 Godot 。(rust的常数只能写在特性或函数里)
+    #[constant]
+    const CUSTOM_CONST:i32 = 999;
 
 }
