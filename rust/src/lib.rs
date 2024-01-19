@@ -127,6 +127,9 @@ struct RustResource{
     #[var(get = get_pro,set = set_pro)]
     pro:i64,
 
+    // 需要#[var]或#[export]标记的数据类型使用 rust-godot 提供的数据类型，比如`Array`或`Dictionary`等等。
+    // `Variant`和`String`数据类型暂时不可使用这些标记。
+
 }
 
 /// `#[godot_api]`还提供`#[func]`辅助标志用于将方法暴露出来。
@@ -164,10 +167,10 @@ impl RustResource {
     /// rust 与 Godot 进行非值类型的自定义类对象的交互的时候，只能通过`Gd<..>`指针进行。
     /// 被`Gd<..>`指针包裹的对象实际上还仍然由 Godot 引擎进行托管， rust 并不持有其所有权。
     /// 在尝试向 Godot 传递对象类型或接受来自 Godot 的对象时需要考虑这点。
+    /// `#[export]`和`#[var]`标志标记的对象并不需要`Gd<..>`包裹，因为标志在幕后就将对象从 Godot 托管转移到 rust 中了。
     #[func]
-    fn new()->Gd<RustResource>{Gd::<RustResource>::from_object(RustResource { a:0, b: 0, pro: 0 })}
+    fn new()->Gd<RustResource>{Gd::<RustResource>::from_object(RustResource { a:0, b: 0, pro: 0})}
 
-    //tool
     //return self, GetOther.
 
 }

@@ -1,0 +1,25 @@
+{
+    // rust 调试用的配置文件，F5 调试。
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Project (Godot 4)",
+            "type": "lldb",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "args": [
+                "--path",
+                "godot",
+                //"-e",     // 若是调试 tool 类在编辑器下的运行，打开此项，否则会直接调试游戏。
+                //"-w",     // 若需要强制窗口化运行游戏，打开此项。
+            ],
+            "linux": {
+                "program": "/usr/local/bin/godot4",
+            },
+            "windows": {
+                // 在这里填写 Godot 可执行文件的路径。
+                "program": "C:\\Users\\Administrator\\Desktop\\Godot_v4.2.1-stable_win64.exe",
+            },
+        }
+    ]
+}

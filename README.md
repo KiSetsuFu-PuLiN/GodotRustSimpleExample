@@ -5,3 +5,5 @@
 - 看`hello_world.gdextension`，将rust编译产生的类添加到Godot中。
 
 - 看`lib.rs`，其中包含了使用rust编写Godot类的说明注释。
+
+- 看`launch.json`，其中包含调试配置。
