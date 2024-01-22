@@ -1,6 +1,7 @@
-use godot::engine::{ISprite2D, Sprite2D};
+use godot::engine::{ISprite2D, Sprite2D, IEditorPlugin};
 use godot::init::EditorRunBehavior;
 use godot::prelude::*;
+
 
 /// 拓展入口，有此项的动态库才能被 *.gdextension 识别。
 /// `MyExtensition`的名称无关紧要，只要有一个类实现了`ExtensionLibrary`即可。
@@ -42,6 +43,7 @@ unsafe impl ExtensionLibrary for MyExtensition {
         // 默认啥都不干
     }
 }
+
 
 /// `#[derive(GodotClass)]`是连接 Rust 字段和 Godot 的主要桥梁。
 /// 请看 GodotClass 的宏定义：
@@ -107,6 +109,7 @@ impl ISprite2D for RustObject {
 
 }
 
+
 #[derive(GodotClass)]
 /// 使用`#[class(init)]`标志使类不需要手动实现对应的接口及其`init`函数也可以在 Godot 中`new`出来，相当于默认`init`实现。
 #[class(init, base = Resource)]
@@ -164,13 +167,33 @@ impl RustResource {
     #[constant]
     const CUSTOM_CONST:i32 = 999;
 
-    /// rust 与 Godot 进行非值类型的自定义类对象的交互的时候，只能通过`Gd<..>`指针进行。
-    /// 被`Gd<..>`指针包裹的对象实际上还仍然由 Godot 引擎进行托管， rust 并不持有其所有权。
-    /// 在尝试向 Godot 传递对象类型或接受来自 Godot 的对象时需要考虑这点。
-    /// `#[export]`和`#[var]`标志标记的对象并不需要`Gd<..>`包裹，因为标志在幕后就将对象从 Godot 托管转移到 rust 中了。
+    /// rust 与 Godot 进行非值类型的自定义类对象的交换的时候，只能通过`Gd<..>`指针进行。
+    /// 主要是由于 Godot 本身有可能保留了对对象的多个引用，并且 Godot 也有一套自己的内存管理方法。
+    /// 被`Gd<..>`指针包裹的对象屏蔽了 Godot 的引用带来的干扰，从而被 rust 像普通的智能指针`Rc<..>`一样使用。
+    /// 并且同时，`Gd<..>`提供了诸多方法用于兼容 rust 和 GDScript 之间设计理念的差异，比如说 rust 不支持继承。
+    /// 可以使用`Gd::<T>::upcast::<TBase>(self)`和`try_cast`来进行类型的派生转换。
+    /// 不过获得手动管理类派生功能的代价是，获取指针真正包含的 Godot 对象内容需要使用`Gd::<T>::bind()`或`Gd::<T>::bind_mut()`。
+    /// `Gd<..>`默认不为空，如果 GDScript 传了一个 null 进来，则会在运行时发生一个入参为 null 的 panic 错误。
+    /// 若要 GDScript 可以传 null 进来，可以使用`Option<Gd<..>>`参数类型。
+    /// 如果`Gd<T>`中的`T`不是 RefCount 类，那么或许需要调用`Gd::<T>::free()`来手动释放对象。
     #[func]
-    fn new()->Gd<RustResource>{Gd::<RustResource>::from_object(RustResource { a:0, b: 0, pro: 0})}
+    fn func(this : Option<Gd<RustResource>>)->Gd<RustResource>{
+        this.unwrap()
+    }
 
-    //return self, GetOther.
+    // 暂不支持在扩展语言中使用由 GDScript class_name 自定义的类。
+    // 但是没什么大问题，因为 rust 通常用于编写高性能核心，并可能减少对外部自定义数据类型的依赖。
+
+}
+
+/// 使用`#[class(editor_plugin)]`将类识别为插件并进行注册。
+/// 因为由 GDExtension 编写的插件不能像 GDScript 那样手动注册和手动控制启用，没有。。。。。文件。
+/// 因此需要由扩展来主动注册，并且注册即代表启用。
+#[derive(GodotClass)]
+#[class(init, editor_plugin, base = EditorPlugin)]
+struct RustEditorPlugin;
+
+#[godot_api]
+impl IEditorPlugin for RustEditorPlugin{
 
 }

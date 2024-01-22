@@ -8,3 +8,4 @@ func _ready():
 	print(get_position())
 	print(a.b())
 	print(RustResource.b())
+	RustResource.func(null);
