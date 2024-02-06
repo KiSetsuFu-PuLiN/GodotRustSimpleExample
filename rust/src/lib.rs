@@ -7,6 +7,7 @@ use godot::prelude::*;
 /// `MyExtensition`的名称无关紧要，只要有一个类实现了`ExtensionLibrary`即可。
 struct MyExtensition;
 /// `#[gdextension]`会将 特性的实现 转化为动态库开放的入口函数`gdext_rust_init`，Godot的 *.gdextension 需要这个。
+/// 实现这个特性需要`unsafe`。
 /// 入口函数会自动为下述标有`#[derive(GodotClass)]`的类执行注册和清理工作。
 #[gdextension]
 unsafe impl ExtensionLibrary for MyExtensition {
@@ -63,7 +64,7 @@ unsafe impl ExtensionLibrary for MyExtensition {
 struct RustObject {
 
     /// `#[base]`标志表示该字段是结构体继承自`Sprite2D`的基类型对象。
-    /// 打上此标记来让帮助宏将基类型的数据写入到该字段中，这在使用`#[class(init)]`标志时是必要的。(对于现在这种手写`init`函数的情况是不必要的)。
+    /// 打上此标记来帮助宏将基类型的数据写入到该字段中，这在使用`#[class(init)]`标志时是必要的。(对于现在这种手写`init`函数的情况是不必要的)。
     /// rust 没有继承的概念，所以对基类型方法和字段的使用只能通过这种方式，这里的`base`字段中包含了所有的基类型字段和方法。
     //#[base]
     base: Base<Sprite2D>,
@@ -187,13 +188,26 @@ impl RustResource {
 }
 
 /// 使用`#[class(editor_plugin)]`将类识别为插件并进行注册。
-/// 因为由 GDExtension 编写的插件不能像 GDScript 那样手动注册和手动控制启用，没有。。。。。文件。
+/// 因为由 GDExtension 编写的插件不能像 GDScript 那样手动注册和手动控制启用，没有`plugin.cfg`文件。（C#另说，巨硬给的太多了）。
 /// 因此需要由扩展来主动注册，并且注册即代表启用。
+/// 插件会隐式地被编辑器加载到场景树的根部，可以获取当前正在编辑的场景树的内容。但是必须使用`#[calss(tool)]`才能发挥作用。
+/// 其他详细请参阅常规 GDScript 中的使用方法。
 #[derive(GodotClass)]
-#[class(init, editor_plugin, base = EditorPlugin)]
+#[class(init, editor_plugin, base = EditorPlugin, tool)]
 struct RustEditorPlugin;
 
+/// 实现此特性可以获得 Godot 引擎提供的内置回调方法供自定义插件使用。
 #[godot_api]
 impl IEditorPlugin for RustEditorPlugin{
+
+    /// 插件会在引擎启动时被自动加载。
+    fn enter_tree(&mut self){
+        godot_print!("插件，启动！")
+    }
+
+    /// 这里处理插件的善后工作。
+    fn exit_tree(&mut self){
+        godot_print!("插件，关闭！")
+    }
 
 }
