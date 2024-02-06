@@ -11,3 +11,6 @@ macos.debug =            "res://../rust/target/debug/librust_godot.dylib"
 macos.release =          "res://../rust/target/release/librust_godot.dylib"
 macos.debug.arm64 =      "res://../rust/target/debug/librust_godot.dylib"
 macos.release.arm64 =    "res://../rust/target/release/librust_godot.dylib"
+
+[icons]
+RustObject = "res://icon.svg"
