@@ -1,3 +1,5 @@
 rust/target
 rust/Cargo.lock
 godot/.godot
+godot/android
+godot/export_presets.cfg
