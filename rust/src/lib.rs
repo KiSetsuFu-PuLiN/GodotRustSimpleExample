@@ -43,7 +43,7 @@ unsafe impl ExtensionLibrary for MyExtensition {
             // 例如下：`Engine::singleton()`。
             Engine::singleton().register_singleton(
                     StringName::from("RustObjectSingleton"),
-                    RustObject::alloc_gd().upcast()
+                    RustObject::new_alloc().upcast()
             );
         }
     }
@@ -123,7 +123,8 @@ impl ISprite2D for RustObject {
 
     /// 这里就实现了一个被 Godot 调用的虚函数。
     fn physics_process(&mut self, delta:f64){
-        self.base.rotate((delta*self.angular_speed) as f32);
+        let radians = (self.angular_speed * delta) as f32;
+        self.base_mut().rotate(radians);
     }
 
 }
