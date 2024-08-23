@@ -1,6 +1,6 @@
-use godot::engine::{ISprite2D, Sprite2D, IEditorPlugin, Engine};
-use godot::init::EditorRunBehavior;
 use godot::prelude::*;
+use godot::init::EditorRunBehavior;
+use godot::classes::{ISprite2D, Sprite2D, IEditorPlugin, Engine};
 
 
 /// 拓展入口，有此项的动态库才能被 *.gdextension 识别。
@@ -43,7 +43,7 @@ unsafe impl ExtensionLibrary for MyExtensition {
             // 例如下：`Engine::singleton()`。
             Engine::singleton().register_singleton(
                     StringName::from("RustObjectSingleton"),
-                    RustObject::new_alloc().upcast()
+                    RustObject::new_alloc()
             );
         }
     }
